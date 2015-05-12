@@ -40,7 +40,7 @@ import javax.swing.border.TitledBorder;
  * @author mifouche
  */
 public class MainGui implements ActionListener{
-    
+    DBCommunicator dbc = new DBCommunicator();
      private JButton btnSignIn,btnRegister;
     JLabel lblLogin, lblPW;
     JTextField txtLogin;
@@ -98,6 +98,8 @@ public class MainGui implements ActionListener{
         DBCommunicator dbc = new DBCommunicator();
         WinningGui wg = new WinningGui();
         
+        
+        
         try
         {
             MakeConnection mc = new MakeConnection();
@@ -142,6 +144,8 @@ public class MainGui implements ActionListener{
                         mgScoreboardOpen = true;
                         wg.setAttributes(loggedInUsername, opponentUsername[0], sessionID, opponentUsername[1],userToJoin, matchID);
                         wg.createWinningGui();
+                        gamePoolEnable(true);
+                        gameTimeEnable(false);
                     } 
                 }
                 
@@ -517,6 +521,58 @@ public class MainGui implements ActionListener{
         panelGameS.setEnabled(flag);
         panelGameN.setEnabled(flag);
      }
+     public void setAllImagesForGame(ArrayList allImagesForGame)
+     {
+         this.allImagesForGame.clear();
+         this.allImagesForGame.addAll(allImagesForGame);
+                 
+         System.out.println("Images size in set all images for gamefunction : "+this.allImagesForGame.size());
+     }
+     
+     public void getNextQuestion()
+     {
+         System.out.println("Images size in maingui: "+allImagesForGame.size());
+         imageID = allImagesForGame.get(currentImageViewing);
+        
+         //System.out.println("Imageid: "+imageID.substring(0, imageID.length() - 4));
+         questionForGameImage = dbc.requestQuestionForImage(imageID.substring(0, imageID.length() - 4));
+         try
+         {              
+            BufferedImage bi = ImageIO.read(getClass().getResource("resources/images/"+imageID));
+            ImageIcon image = new ImageIcon(bi); 
+            lblGamePic.setIcon(image);
+            //panelGameW.add(lblGamePic );
+         }
+         catch(Exception e)
+         {
+             System.out.println("getNextQuestion(load image): \n"+e);
+         }
+         try
+         {
+            rbc1.setText(questionForGameImage.get(0));
+            rbc2.setText(questionForGameImage.get(1));
+            rbc3.setText(questionForGameImage.get(2));
+            rbc4.setText(questionForGameImage.get(3));
+         }
+         catch(Exception e)
+         {
+             System.out.println("Error setting radiobuttons \n"+e);
+         }
+         currentImageViewing=currentImageViewing+1;
+         if(currentImageViewing>allImagesForGame.size()-1)
+         {
+             currentImageViewing=0;
+         }
+         
+         
+         
+         //System.out.println("currentImageViewing: "+currentImageViewing);
+         //need to update that entire center panel to allow the length of each place to not f**k everything up
+         //set the question number
+         //set the amount of correct answers
+         
+     }
+     
     public void actionPerformed(ActionEvent e)
     {
         if(e.getSource()==btnSignIn)
@@ -579,11 +635,139 @@ public class MainGui implements ActionListener{
             
             
         }
-    }
-    if(e.getSource()==btnRegister)
+    if(poolSize>0)
+        {
+            
+            for(int a =0;a<poolSize;a++)
+            {
+                if(e.getSource()==btnJoin[a])
+                {
+                    userToJoin = lblUser[a].getText();
+                    if(dbc.userAvailable(userToJoin))
+                    {  
+                        getNextQuestion();
+                        
+                        gameTimeEnable(true);
+                        gamePoolEnable(false);
+                        progressSize = 30;
+                        gameTimeLeft = true;
+                        flagInGame = true;
+                        matchID = 0;
+                        try
+                        {
+                            matchID = dbc.getNextMatchID();
+                            dbc.joinUserInPool(loggedInUsername,userToJoin,matchID);
+                            sessionID = dbc.createMatch(matchID, loggedInUsername, userToJoin, 1, 0);
+                            //System.out.println("Session: "+sessionID);
+                        }
+                        catch(Exception ee)
+                        {
+                            System.out.println("Could not create the game session: \n"+ee);
+                        }
+                        System.out.println("username:"+loggedInUsername+"opponent: "+userToJoin+ "session: "+sessionID+" match: "+matchID);
+                        lblQuest2.setText(dbc.getCurrentQuestionForUser(sessionID, loggedInUsername)+"");
+                        lblCorrect2.setText(dbc.getScoreForUser(sessionID, loggedInUsername)+"");
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(null, "Sorry, the user is not available anymore","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                    }
+                    
+                }
+            }
+            
+        }
+        if(e.getSource()==btnAddUserToPool)
+        {
+            if(btnAddUserToPool.getText().equals("Join Pool"))
+            {
+                if(dbc.checkUserInPool(loggedInUsername))
+                {
+                    JOptionPane.showMessageDialog(null, "You are already in the pool","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                    btnJoinPoolText = "Leave Pool";
+                    btnAddUserToPool.setText(btnJoinPoolText);
+                }
+                else if(dbc.addUserToPool(loggedInUsername))
+                {                    
+                    btnJoinPoolText = "Leave Pool";
+                    btnAddUserToPool.setText(btnJoinPoolText);
+                    updatePoolPanel();
+                    waitingInPool = true;
+                }
+            }
+            else
+            {
+                if(dbc.checkUserInPool(loggedInUsername))
+                {
+                    if(dbc.userAvailable(loggedInUsername))
+                    {
+                        dbc.removeUserFromPool(loggedInUsername);
+                        btnJoinPoolText = "Join Pool";
+                        btnAddUserToPool.setText(btnJoinPoolText);
+                        updatePoolPanel();
+                        waitingInPool = false;
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(null, "You are not in the pool","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                    }
+
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "You are not in the pool","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                    btnJoinPoolText = "Join Pool";
+                    btnAddUserToPool.setText(btnJoinPoolText);
+                    updatePoolPanel();
+                }
+                btnAddUserToPool.setText("Join Pool");
+            }
+            
+            
+        }        
+            
+        if(e.getSource()==btnSubmitAnswer)
+        {
+            String answerText = "";
+            if(rbc1.isSelected())
+            {
+                answerText = rbc1.getText();
+            }
+            else if(rbc2.isSelected())
+            {
+                answerText = rbc2.getText();
+            }
+            else if(rbc3.isSelected())
+            {
+                answerText = rbc3.getText();
+            }
+            else if(rbc4.isSelected())
+            {
+                answerText = rbc4.getText();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(null, "Oops, you didn't select an answer","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+            }
+            
+            boolean answerCorrect = dbc.submitAnswer(imageID.substring(0, imageID.length() - 4),answerText);
+            dbc.updateAnswer(sessionID, loggedInUsername,answerCorrect);
+            
+            lblQuest2.setText(dbc.getCurrentQuestionForUser(sessionID, loggedInUsername)+"");
+            lblCorrect2.setText(dbc.getScoreForUser(sessionID, loggedInUsername)+"");
+            //get the radio button selected
+            //match the rb text to the asnwer for the question
+            //add the mark if correct
+            getNextQuestion();
+        }
+        
+        if(e.getSource()==btnRegister)
     {
         Register r = new Register();
         r.registerGUI();
         System.out.println("You clicked the button btnRegister");
+    }
+    
+    
     }
 }

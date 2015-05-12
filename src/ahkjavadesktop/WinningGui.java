@@ -164,6 +164,13 @@ public class WinningGui implements ActionListener{
      }
     public void actionPerformed(ActionEvent e)
     {
-        
+        if(e.getSource()== btnWReturn)
+        {
+            jfW.dispose();
+            scoreboardOpen = false;
+            imTheJoiningUser = false;
+            
+            
+        }
     }
 }
