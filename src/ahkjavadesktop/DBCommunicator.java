@@ -14,6 +14,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -205,13 +207,17 @@ public class DBCommunicator {
     }
     public boolean passwordValid(String pword)
     {
-        boolean valid = false;
+         boolean valid = false;
+        Pattern pattern;
+        Matcher matcher;
+
+        String PASSWORD_PATTERN = "((?=.*[a-z])(?=.*\\d)(?=.*[A-Z])(?=.*[@#$%!]).{6,20})";
+        
         if(pword.length() > 6)
         {
-            if(pword.matches("^(?=.*[a-z])(?=.*[0-9])[a-z0-9]+$"))
-            {
-                valid=true;
-            }
+            pattern = Pattern.compile(PASSWORD_PATTERN);
+            matcher = pattern.matcher(pword);
+            valid = matcher.matches();
         }
         return valid;
     }
