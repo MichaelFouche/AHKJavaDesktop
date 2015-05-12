@@ -42,7 +42,7 @@ public class WinningGui implements ActionListener{
     String opponentUsername1;
     String userToJoin;
     int matchID;
-    
+    int count = 0;
     ScheduledExecutorService ses4 = Executors.newScheduledThreadPool(10);
     
     public WinningGui()
@@ -54,14 +54,12 @@ public class WinningGui implements ActionListener{
             @Override
             public void run() 
             {
-                System.out.println("ping");
                 if(scoreboardOpen)
                 {
-                    System.out.println("Passed scoreboard open");
                     if(imTheJoiningUser)//the user from the pool
                     {
                         //System.out.println("username:"+loggedInUsername+" opponent: "+opponentUsername[0]+ " session: "+sessionID+" match: "+opponentUsername[1]);
-                        System.out.println("Results for joiner: ");
+                        //System.out.println("Results for joiner: ");
                         lblWplayer.setText(loggedInUsername+" VS "+opponentUsername0);
                         int score1 = dbc.getResults(sessionID,loggedInUsername, opponentUsername0);
                         int score2 = dbc.getOpponentScore(Integer.parseInt(opponentUsername1), opponentUsername0);
@@ -69,7 +67,22 @@ public class WinningGui implements ActionListener{
                         pbWPlayer1.setString(loggedInUsername+" scored "+score1);
                         pbWPlayer2.setValue(score2);
                         pbWPlayer2.setString(opponentUsername0+" scored "+score2);
-                        System.out.println("Joining user update");
+                        //System.out.println("Joining user update");
+                        if(count ==1)
+                        {
+                            if(score1>score2)
+                            {
+                                dbc.updateScore(loggedInUsername);
+                                System.out.println(loggedInUsername +" gained a point");
+                            }
+                            else
+                            {
+                                dbc.updateScore(opponentUsername0);
+                                System.out.println(opponentUsername0 +" gained a point");                                 
+                            }
+                            
+                        }
+                        count++;
                     }
                     else//the user that joined the user in the pool
                     {
@@ -82,14 +95,14 @@ public class WinningGui implements ActionListener{
                         pbWPlayer2.setValue(score2);
                         pbWPlayer2.setString(userToJoin+" scored "+score2);
                         boolean competitorAlsoDone = dbc.getGameComplete(sessionID,userToJoin, loggedInUsername);
-                        System.out.println("competitorAlsoDone: "+competitorAlsoDone);
+                        //System.out.println("competitorAlsoDone: "+competitorAlsoDone);
                         
                     }
                     //update who won here
                     
                 }
             }
-        }, 5, 4, TimeUnit.SECONDS);  // execute every x seconds
+        }, 4, 4, TimeUnit.SECONDS);  // execute every x seconds
     }
     public void setAttributes(String loggedInUsername, String opponentUsername0, int sessionID,  String opponentUsername1,String userToJoin,int matchID, boolean imTheJoiningUser)
     {

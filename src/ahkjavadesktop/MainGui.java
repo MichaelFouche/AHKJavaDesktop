@@ -145,6 +145,12 @@ public class MainGui implements ActionListener{
                         WinningGui wg = new WinningGui();
                         wg.setAttributes(loggedInUsername, opponentUsername[0], sessionID, opponentUsername[1],userToJoin, matchID, imTheJoiningUser);
                         wg.createWinningGui();
+                        
+                        btnJoinPoolText = "Join Pool";
+                        btnAddUserToPool.setText(btnJoinPoolText);
+                        //updatePoolPanel();
+                        waitingInPool = false;
+                        
                         gamePoolEnable(true);
                         gameTimeEnable(false);
                     } 
@@ -642,35 +648,47 @@ public class MainGui implements ActionListener{
                 if(e.getSource()==btnJoin[a])
                 {
                     userToJoin = lblUser[a].getText();
-                    if(dbc.userAvailable(userToJoin))
-                    {  
-                        getNextQuestion();
-                        
-                        gameTimeEnable(true);
-                        gamePoolEnable(false);
-                        progressSize = 30;
-                        gameTimeLeft = true;
-                        flagInGame = true;
-                        matchID = 0;
-                        try
-                        {
-                            matchID = dbc.getNextMatchID();
-                            dbc.joinUserInPool(loggedInUsername,userToJoin,matchID);
-                            sessionID = dbc.createMatch(matchID, loggedInUsername, userToJoin, 1, 0);
-                            //System.out.println("Session: "+sessionID);
-                        }
-                        catch(Exception ee)
-                        {
-                            System.out.println("Could not create the game session: \n"+ee);
-                        }
-                        System.out.println("username:"+loggedInUsername+"opponent: "+userToJoin+ "session: "+sessionID+" match: "+matchID);
-                        lblQuest2.setText(dbc.getCurrentQuestionForUser(sessionID, loggedInUsername)+"");
-                        lblCorrect2.setText(dbc.getScoreForUser(sessionID, loggedInUsername)+"");
+                    if(userToJoin.equals(loggedInUsername))
+                    {
+                        JOptionPane.showMessageDialog(null, "You cannot join yourself in a game\nPlease leave the pool and join another user","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                    }
+                    else if(waitingInPool)
+                    {
+                        JOptionPane.showMessageDialog(null, "You cannot join a game while you are in the pool\nPlease leave the pool and then join "+userToJoin,"AHK - Pool",JOptionPane.ERROR_MESSAGE);
                     }
                     else
                     {
-                        JOptionPane.showMessageDialog(null, "Sorry, the user is not available anymore","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                        if(dbc.userAvailable(userToJoin))
+                        {  
+                            getNextQuestion();
+
+                            gameTimeEnable(true);
+                            gamePoolEnable(false);
+                            progressSize = 30;
+                            gameTimeLeft = true;
+                            flagInGame = true;
+                            matchID = 0;
+                            try
+                            {
+                                matchID = dbc.getNextMatchID();
+                                dbc.joinUserInPool(loggedInUsername,userToJoin,matchID);
+                                sessionID = dbc.createMatch(matchID, loggedInUsername, userToJoin, 1, 0);
+                                //System.out.println("Session: "+sessionID);
+                            }
+                            catch(Exception ee)
+                            {
+                                System.out.println("Could not create the game session: \n"+ee);
+                            }
+                            System.out.println("username:"+loggedInUsername+"opponent: "+userToJoin+ "session: "+sessionID+" match: "+matchID);
+                            lblQuest2.setText(dbc.getCurrentQuestionForUser(sessionID, loggedInUsername)+"");
+                            lblCorrect2.setText(dbc.getScoreForUser(sessionID, loggedInUsername)+"");
+                        }
+                        else
+                        {
+                            JOptionPane.showMessageDialog(null, "Sorry, the user ("+userToJoin+") is not available anymore\nPlease try another user","AHK - Pool",JOptionPane.ERROR_MESSAGE);
+                        }
                     }
+                        
                     
                 }
             }
@@ -692,6 +710,7 @@ public class MainGui implements ActionListener{
                     btnAddUserToPool.setText(btnJoinPoolText);
                     updatePoolPanel();
                     waitingInPool = true;
+                    
                 }
             }
             else

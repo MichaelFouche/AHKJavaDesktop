@@ -699,6 +699,52 @@ public class DBCommunicator {
              
          }
     }
+    public void updateScore(String usersID)
+    {
+        int currentScore=0;
+        try
+         {
+            conn = makeConnection();
+            
+            String query = "SELECT score FROM users where userID = '"+usersID+"'  " ;
+            // create the java statement
+            Statement st = conn.createStatement();
+
+            // execute the query, and get a java resultset
+            ResultSet rs = st.executeQuery(query);
+
+            // iterate through the java resultset
+            while (rs.next())
+            {
+                currentScore = rs.getInt("score"); 
+            }
+            rs.close();
+            st.close();
+            conn = makeConnection();
+            Statement s = conn.createStatement();
+            PreparedStatement preparedStmt ;
+                currentScore = currentScore+1;
+                query = ("UPDATE users set score = ? where userID = ? ;"); // insert the data to the table  
+                preparedStmt = conn.prepareStatement(query);
+                preparedStmt.setInt(1, currentScore);
+                preparedStmt.setString(2, usersID);
+           
+ 
+      // execute the java preparedstatement
+            preparedStmt.executeUpdate();
+            
+            
+            s.close();            
+            conn.close();
+            conn = null;
+         }
+         catch(Exception e)
+         {
+             System.out.println("Error in updateScore: \t"+e);
+             
+         }
+    }
+    
     public boolean getGameComplete(int matchSessionID,String userID, String opponentUserID)
     {
         boolean gameComplete = true;
