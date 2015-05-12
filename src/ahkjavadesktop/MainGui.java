@@ -96,7 +96,7 @@ public class MainGui implements ActionListener{
     public MainGui()
     {
         DBCommunicator dbc = new DBCommunicator();
-        WinningGui wg = new WinningGui();
+        
         
         
         
@@ -142,7 +142,8 @@ public class MainGui implements ActionListener{
                         flagInGame = false;
                         justFinishedGame = true;
                         mgScoreboardOpen = true;
-                        wg.setAttributes(loggedInUsername, opponentUsername[0], sessionID, opponentUsername[1],userToJoin, matchID);
+                        WinningGui wg = new WinningGui();
+                        wg.setAttributes(loggedInUsername, opponentUsername[0], sessionID, opponentUsername[1],userToJoin, matchID, imTheJoiningUser);
                         wg.createWinningGui();
                         gamePoolEnable(true);
                         gameTimeEnable(false);

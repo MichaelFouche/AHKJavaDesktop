@@ -43,18 +43,21 @@ public class WinningGui implements ActionListener{
     String userToJoin;
     int matchID;
     
-    ScheduledExecutorService ses5 = Executors.newScheduledThreadPool(10);
+    ScheduledExecutorService ses4 = Executors.newScheduledThreadPool(10);
     
     public WinningGui()
     {
+        imTheJoiningUser = false;
         
-        ses5.scheduleAtFixedRate(new Runnable() 
+        ses4.scheduleAtFixedRate(new Runnable() 
         {
             @Override
             public void run() 
             {
+                System.out.println("ping");
                 if(scoreboardOpen)
                 {
+                    System.out.println("Passed scoreboard open");
                     if(imTheJoiningUser)//the user from the pool
                     {
                         //System.out.println("username:"+loggedInUsername+" opponent: "+opponentUsername[0]+ " session: "+sessionID+" match: "+opponentUsername[1]);
@@ -66,7 +69,7 @@ public class WinningGui implements ActionListener{
                         pbWPlayer1.setString(loggedInUsername+" scored "+score1);
                         pbWPlayer2.setValue(score2);
                         pbWPlayer2.setString(opponentUsername0+" scored "+score2);
-                        
+                        System.out.println("Joining user update");
                     }
                     else//the user that joined the user in the pool
                     {
@@ -86,9 +89,9 @@ public class WinningGui implements ActionListener{
                     
                 }
             }
-        }, 5, 5, TimeUnit.SECONDS);  // execute every x seconds
+        }, 5, 4, TimeUnit.SECONDS);  // execute every x seconds
     }
-    public void setAttributes(String loggedInUsername, String opponentUsername0, int sessionID,  String opponentUsername1,String userToJoin,int matchID)
+    public void setAttributes(String loggedInUsername, String opponentUsername0, int sessionID,  String opponentUsername1,String userToJoin,int matchID, boolean imTheJoiningUser)
     {
         this.loggedInUsername = loggedInUsername;
         this.opponentUsername0 = opponentUsername0;
@@ -96,6 +99,8 @@ public class WinningGui implements ActionListener{
         this.opponentUsername1 = opponentUsername1;
         this.userToJoin = userToJoin;
         this.matchID = matchID;
+        this.imTheJoiningUser = imTheJoiningUser;
+        scoreboardOpen = true;
     }
     
     public Boolean getOpenStatus()
@@ -131,7 +136,7 @@ public class WinningGui implements ActionListener{
          pbWPlayer2 = new JProgressBar(0,100);
          pbWPlayer2.setStringPainted(true);
          pbWPlayer2.setValue(0);
-         pbWPlayer2.setString("Player 1 score loading");
+         pbWPlayer2.setString("Player 2 score loading");
          
          panelWC.add(lblWplayer);
          panelWC.add(pbWPlayer1);
