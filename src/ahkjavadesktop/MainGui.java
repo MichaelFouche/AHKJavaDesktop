@@ -526,12 +526,10 @@ public class MainGui implements ActionListener{
          this.allImagesForGame.clear();
          this.allImagesForGame.addAll(allImagesForGame);
                  
-         System.out.println("Images size in set all images for gamefunction : "+this.allImagesForGame.size());
      }
      
      public void getNextQuestion()
      {
-         System.out.println("Images size in maingui: "+allImagesForGame.size());
          imageID = allImagesForGame.get(currentImageViewing);
         
          //System.out.println("Imageid: "+imageID.substring(0, imageID.length() - 4));

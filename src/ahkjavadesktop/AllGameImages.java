@@ -50,7 +50,6 @@ public class AllGameImages {
              System.out.println("Get all images"+e +"\n");
              e.printStackTrace();
          }
-         System.out.println("Images size in  all game images class: "+allImagesForGame.size());
          return allImagesForGame;
      }
 }
