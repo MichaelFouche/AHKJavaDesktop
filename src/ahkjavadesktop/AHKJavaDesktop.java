@@ -46,18 +46,13 @@ import javax.swing.border.TitledBorder;
  *
  * @author mifouche
  */
-public class AHKJavaDesktop implements ActionListener{
-    DBCommunicator dbc = new DBCommunicator();
+public class AHKJavaDesktop {
    
     public AHKJavaDesktop() throws SQLException
     {
         
     } 
-    
-     
-     public void actionPerformed(ActionEvent e)
-    {
-    }
+         
     public static void main(String[] args) throws IOException {
         ArrayList<String> allImagesForGame = new ArrayList();
         AllGameImages agi = new AllGameImages();
@@ -78,12 +73,7 @@ public class AHKJavaDesktop implements ActionListener{
          catch (SQLException e) {
              e.printStackTrace();
              System.err.println("Connection Failure");
-         }  
-       
-        DBCommunicator dbc = new DBCommunicator();
-        
-        //System.out.println("User exists: "+dbc.usernameExists("foosh"));
-        //System.out.println("User exists: "+dbc.usernameExists("ryno"));
+         } 
         
 
         
